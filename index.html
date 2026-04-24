@@ -354,7 +354,7 @@
             <div class="admin-field-label">AUTHENTICATION ROLE</div>
             <div class="admin-select-wrap">
               <i class="fa-solid fa-lock admin-select-icon"></i>
-              <select class="admin-role-select" id="adminRole" onchange="updateAdminPlaceholder()">
+              <select class="admin-role-select" id="adminRole">
                 <option value="hospital">Hospital</option>
                 <option value="food">Food / NGO</option>
                 <option value="police">Police</option>
@@ -364,10 +364,10 @@
             </div>
           </div>
           <div>
-            <div class="admin-field-label">USER IDENTIFIER</div>
+            <div class="admin-field-label">EMAIL</div>
             <div class="admin-input-wrap">
-              <i class="fa-solid fa-fingerprint admin-input-icon"></i>
-              <input type="text" class="admin-input" id="adminUser" placeholder="admin.crisis.sync" autocomplete="off">
+              <i class="fa-solid fa-envelope admin-input-icon"></i>
+              <input type="email" class="admin-input" id="adminEmail" placeholder="institution@email.com" autocomplete="off">
             </div>
           </div>
           <div>
@@ -379,15 +379,16 @@
             </div>
           </div>
           <p class="admin-error" id="adminError"></p>
-          <button class="admin-login-btn" onclick="handleAdminLogin()">
+          <button class="admin-login-btn" onclick="handleAdminAuth('login')">
             <span id="adminBtnText">SECURE LOGIN</span>
             <i class="fa-solid fa-arrow-right" id="adminBtnIcon"></i>
             <span class="admin-btn-loader" id="adminBtnLoader" style="display:none;"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
           </button>
-        </div>
-        <div class="admin-footer-links">
-          <span class="admin-footer-link">FORGOT CLEARANCE?</span>
-          <span class="admin-footer-link">REQUEST ACCESS</span>
+          <div style="display:flex;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap;">
+            <button class="admin-footer-link" onclick="switchAuthMode('signup')" style="background:none;border:none;color:#e03030;font-size:12px;font-weight:700;cursor:pointer;">SIGN UP</button>
+            <span class="admin-footer-link">FORGOT CLEARANCE?</span>
+            <span class="admin-footer-link">REQUEST ACCESS</span>
+          </div>
         </div>
         <div class="admin-version">V4.2</div>
         <div class="admin-proto-strip">
