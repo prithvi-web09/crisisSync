@@ -287,7 +287,7 @@ const firebaseConfig = {
       try {
         const snap = await db.collection('food_ngos').get();
         const out  = [];
-        for (const d of snap.docs) {2
+        for (const d of snap.docs) {
           const info  = d.data();
           const stns  = await _list(`food_ngos/${d.id}/stations`);
           for (const s of stns) {
