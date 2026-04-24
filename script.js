@@ -940,15 +940,7 @@ function analyzeAndRespond(speech) {
 //  ADMIN NEXUS PORTAL  — NEW CODE
 // ═══════════════════════════════════════════════════════
 
-// ── Credentials (simple hardcoded for now) ──
-const ADMIN_CREDENTIALS = {
-  hospital: { user: 'admin.hospital',  pass: 'hosp@2024' },
-  food:     { user: 'admin.food',      pass: 'food@2024' },
-  police:   { user: 'admin.police',    pass: 'police@2024' },
-  shelter:  { user: 'admin.shelter',   pass: 'shelter@2024' },
-};
-
-// Role display config
+// ── Role display config ──
 const ROLE_CONFIG = {
   hospital: { label: 'Hospital Admin',  icon: 'fa-briefcase-medical', color: '#4ade80', stats: [{ val: '14', lbl: 'BEDS FREE', icon: 'fa-bed', bg: '#0d2b1a' }, { val: '3',  lbl: 'CRITICAL', icon: 'fa-heart-pulse', bg: '#2b1a1a' }, { val: '12', lbl: 'WAIT (MIN)', icon: 'fa-clock', bg: '#2b2200' }, { val: '5',  lbl: 'DOCTORS ON', icon: 'fa-user-doctor', bg: '#1a1f2e' }] },
   food:     { label: 'Food/NGO Admin',  icon: 'fa-hand-holding-heart', color: '#facc15', stats: [{ val: '500+', lbl: 'MEAL KITS', icon: 'fa-box-open', bg: '#2a1f00' }, { val: '3',  lbl: 'STATIONS', icon: 'fa-location-dot', bg: '#0d2b1a' }, { val: '200L', lbl: 'WATER AVAIL', icon: 'fa-droplet', bg: '#1a1f2e' }, { val: '2',  lbl: 'LOW STOCK', icon: 'fa-triangle-exclamation', bg: '#2b1a1a' }] },
@@ -970,21 +962,20 @@ async function openAdminPortal() {
   }
 
   // Reset to login view
-  const loginForm = document.getElementById('adminLoginForm');
+  if (typeof switchAuthMode === 'function') {
+    switchAuthMode('login');
+  }
   const dashboard = document.getElementById('adminDashboard');
-  if (loginForm)   loginForm.style.display = 'flex';
-  if (dashboard)   dashboard.classList.remove('open');
+  if (dashboard) dashboard.classList.remove('open');
 
-  document.getElementById('adminUser').value  = '';
+  const adminEmail = document.getElementById('adminEmail');
+  if (adminEmail) adminEmail.value = '';
   document.getElementById('adminPass').value  = '';
   document.getElementById('adminError').textContent = '';
   document.getElementById('adminBtnText').textContent = 'SECURE LOGIN';
   document.getElementById('adminBtnIcon').style.display = '';
   document.getElementById('adminBtnLoader').style.display = 'none';
   document.querySelector('.admin-login-btn').disabled = false;
-
-  // Update placeholder on load
-  updateAdminPlaceholder();
 }
 
 function closeAdminPortal() {
@@ -993,14 +984,6 @@ function closeAdminPortal() {
 }
 
 // ── Update placeholder based on selected role ──
-function updateAdminPlaceholder() {
-  const role = document.getElementById('adminRole').value;
-  const cred = ADMIN_CREDENTIALS[role];
-  if (cred) {
-    document.getElementById('adminUser').placeholder = cred.user;
-  }
-}
-
 // ── Toggle password visibility ──
 function toggleAdminPass(btn) {
   const input = document.getElementById('adminPass');
@@ -1012,41 +995,6 @@ function toggleAdminPass(btn) {
     input.type = 'password';
     icon.className = 'fa-solid fa-eye';
   }
-}
-
-// ── Handle login ──
-async function handleAdminLogin() {
-  const role = document.getElementById('adminRole').value;
-  const user = document.getElementById('adminUser').value.trim();
-  const pass = document.getElementById('adminPass').value.trim();
-  const errEl = document.getElementById('adminError');
-  const btn   = document.querySelector('.admin-login-btn');
-  const btnTxt  = document.getElementById('adminBtnText');
-  const btnIcon = document.getElementById('adminBtnIcon');
-  const btnLoader = document.getElementById('adminBtnLoader');
-
-  errEl.textContent = '';
-
-  if (!user || !pass) {
-    errEl.textContent = '⚠ CREDENTIALS REQUIRED';
-    shakeLoginBtn();
-    return;
-  }
-
-  const cred = ADMIN_CREDENTIALS[role];
-  if (user !== cred.user || pass !== cred.pass) {
-    errEl.textContent = '✕ ACCESS DENIED — INVALID CREDENTIALS';
-    shakeLoginBtn();
-    document.getElementById('adminPass').value = '';
-    return;
-  }
-
-  localStorage.setItem('adminLoggedIn', 'true');
-  localStorage.setItem('adminRole', role);
-  localStorage.setItem('adminOverlayOpen', 'true');
-
-  // Show dashboard immediately — no artificial delay
-  await showAdminDashboard(role);
 }
 
 function shakeLoginBtn() {
@@ -1185,7 +1133,8 @@ function adminLogout() {
   localStorage.removeItem('adminRole');
   localStorage.removeItem('adminOverlayOpen');
 
-  document.getElementById('adminUser').value = '';
+  const adminEmail = document.getElementById('adminEmail');
+  if (adminEmail) adminEmail.value = '';
   document.getElementById('adminPass').value = '';
   document.getElementById('adminError').textContent = '';
 }
