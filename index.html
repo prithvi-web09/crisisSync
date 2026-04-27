@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CrisisSync</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0b0b'/%3E%3Cpath d='M32 8l16 6v13c0 12-7.2 22.9-16 29-8.8-6.1-16-17-16-29V14l16-6z' fill='%23ef4444'/%3E%3Cpath d='M29 20h6v9h9v6h-9v9h-6v-9h-9v-6h9z' fill='white'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="admin-modals.css">
+</head>
+<body>
+  <div class="mobile-wrapper">
+
+    <!-- Top Navbar -->
+    <nav class="navbar">
+      <div class="nav-left">
+        <i class="fa-solid fa-globe globe-icon"></i>
+        <div class="brand">
+          <span class="brand-name">CrisisSync</span>
+          <span class="live-tracking">
+            <span class="live-dot"></span>
+            Live Tracking
+            <span class="user-location" id="userLocation">Detecting...</span>
+          </span>
+        </div>
+      </div>
+      <div class="avatar">
+        <img src="https://i.pravatar.cc/80?img=12" alt="User Avatar">
+      </div>
+    </nav>
+
+    <!-- Alert Banner -->
+    <div class="alert-bar">
+      <div class="alert-left">
+        <div class="alert-icon-wrap">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="alert-text">
+          <span class="alert-title">Flood warning in your area</span>
+          <span class="alert-subtitle">Active alert: Seek higher ground immediately.</span>
+        </div>
+      </div>
+      <i class="fa-solid fa-chevron-right alert-arrow"></i>
+    </div>
+
+    <!-- SOS Section -->
+    <div class="sos-section">
+      <div class="sos-outer">
+        <button class="sos-btn" id="sosBtn" onclick="startMic()">
+          <span class="sos-label">SOS</span>
+          <span class="sos-sub">HOLD TO SIGNAL</span>
+        </button>
+      </div>
+      <p class="mic-status" id="micStatus"></p>
+    </div>
+
+    <!-- Quick Access Grid -->
+    <div class="quick-grid">
+      <a href="#" class="quick-card" onclick="openHospitalModal(); return false;">
+        <div class="quick-icon" style="background:#0d2b1a;">
+          <i class="fa-solid fa-briefcase-medical" style="color:#4ade80;"></i>
+        </div>
+        <span class="quick-label">HOSPITAL</span>
+      </a>
+      <a href="#" class="quick-card" onclick="openPoliceModal(); return false;">
+        <div class="quick-icon" style="background:#2b1a1a;">
+          <i class="fa-solid fa-shield-halved" style="color:#f87171;"></i>
+        </div>
+        <span class="quick-label">POLICE</span>
+      </a>
+      <a href="#" class="quick-card" onclick="openShelterModal(); return false;">
+        <div class="quick-icon" style="background:#2b2200;">
+          <i class="fa-solid fa-location-dot" style="color:#facc15;"></i>
+        </div>
+        <span class="quick-label">SHELTER</span>
+      </a>
+      <a href="#" class="quick-card" onclick="openFoodModal(); return false;">
+        <div class="quick-icon" style="background:#1e1e1e;">
+          <i class="fa-solid fa-hand-holding-heart" style="color:#94a3b8;"></i>
+        </div>
+        <span class="quick-label">FOOD/NGO</span>
+      </a>
+    </div>
+
+    <!-- Localized Insight Card -->
+    <div class="insight-card">
+      <div class="insight-map">
+        <img src="https://api.mapbox.com/styles/v1/mapbox/dark-v11/static/72.8777,19.0760,11,0/340x160?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw"
+             alt="Crisis Map" class="insight-map-img" id="insightMapImg">
+        <div class="insight-map-overlay"></div>
+      </div>
+      <div class="insight-body">
+        <div class="insight-tag">
+          <span class="insight-dot"></span>
+          <span class="insight-tag-text">LOCALIZED INSIGHT</span>
+        </div>
+        <h2 class="insight-title" id="insightTitle">Analyzing your area...</h2>
+        <p class="insight-desc" id="insightDesc">Fetching local conditions based on your location.</p>
+        <a href="#" class="insight-link" onclick="openReportModal(); return false;">Full Situation Report →</a>
+      </div>
+    </div>
+
+  </div><!-- /.mobile-wrapper -->
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <a href="index.html" class="nav-item active">
+      <i class="fa-solid fa-house"></i>
+      <span>Home</span>
+    </a>
+    <a href="#" class="nav-item" onclick="openMapModal(); return false;">
+      <i class="fa-solid fa-map"></i>
+      <span>Map</span>
+    </a>
+    <a href="#" class="nav-item nav-sos" onclick="openSOSModal(); return false;">
+      <i class="fa-solid fa-microphone"></i>
+      <span>SOS</span>
+    </a>
+    <a href="#" class="nav-item" onclick="openAdminPortal(); return false;">
+      <i class="fa-solid fa-table-cells-large"></i>
+      <span>Admin</span>
+    </a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  USER-FACING MODALS                             -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- SOS Modal -->
+  <div class="sos-modal" id="sosModal">
+    <div class="sos-modal-box">
+      <div class="sos-modal-header">
+        <div class="sos-modal-title"><span class="sos-live-dot"></span>LIVE SOS PROTOCOL</div>
+        <button class="sos-modal-close" onclick="closeSOSModal()">✕</button>
+      </div>
+      <div class="sos-modal-body">
+        <div class="sos-mic-outer" id="sosMicOuter">
+          <button class="sos-mic-btn" id="sosMicBtn" onclick="startMic()">
+            <i class="fa-solid fa-microphone"></i>
+          </button>
+        </div>
+        <p class="sos-listening-text" id="sosListeningText">Tap mic to speak</p>
+        <div class="sos-transcript-wrap" id="sosTranscriptWrap" style="display:none;">
+          <p class="sos-transcript-label">Detecting emergency keywords and location</p>
+          <div class="sos-transcript-box" id="sosTranscriptBox"></div>
+        </div>
+        <p class="sos-response-text" id="sosResponseText"></p>
+        <div class="dispatch-card" id="dispatchCard" style="display:none;">
+          <div class="dispatch-icon" id="dispatchIcon"><i class="fa-solid fa-plus"></i></div>
+          <div class="dispatch-info">
+            <span class="dispatch-tag" id="dispatchTag">PRIORITY DISPATCH</span>
+            <span class="dispatch-name" id="dispatchName">Finding nearest...</span>
+          </div>
+          <div class="dispatch-distance">
+            <span class="dispatch-dist-label">Distance</span>
+            <span class="dispatch-dist-value" id="dispatchDist">--</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Modal -->
+  <div class="map-modal" id="mapModal">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div class="map-modal-title"><span class="map-live-dot"></span>ZONE STATUS</div>
+        <button class="map-modal-close" onclick="closeMapModal()">✕</button>
+      </div>
+      <div class="zone-card">
+        <div class="zone-card-header">
+          <span class="zone-title">Zone Status</span>
+          <span class="zone-live"><span class="zone-live-dot"></span>LIVE UPDATE</span>
+        </div>
+        <div class="zone-list" id="zoneList"><div class="zone-loading">Analyzing your location...</div></div>
+      </div>
+      <div class="nearby-bar" id="nearbyBar">
+        <div class="nearby-icon"><i class="fa-solid fa-wifi"></i></div>
+        <div class="nearby-text">
+          <span class="nearby-label">Nearby Alerts</span>
+          <span class="nearby-value" id="nearbyValue">Scanning area...</span>
+        </div>
+      </div>
+      <div class="safe-card" id="safeCard" style="display:none;">
+        <div class="safe-icon"><i class="fa-solid fa-circle-check"></i></div>
+        <div class="safe-text">
+          <span class="safe-title">All Clear</span>
+          <span class="safe-desc" id="safeDesc">No active hazards in your area.</span>
+        </div>
+      </div>
+      <div class="weather-strip" id="weatherStrip" style="display:none;">
+        <div class="weather-item" id="weatherTemp"></div>
+        <div class="weather-divider"></div>
+        <div class="weather-item" id="weatherWind"></div>
+        <div class="weather-divider"></div>
+        <div class="weather-item" id="weatherCondition"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Situation Report Modal -->
+  <div class="map-modal" id="reportModal">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div class="map-modal-title"><i class="fa-solid fa-file-lines" style="color:#facc15;font-size:16px;"></i>SITUATION REPORT</div>
+        <button class="map-modal-close" onclick="closeReportModal()">✕</button>
+      </div>
+      <div class="report-meta">
+        <div class="report-meta-item"><i class="fa-solid fa-location-dot"></i><span id="reportLocation">Detecting...</span></div>
+        <div class="report-meta-item"><i class="fa-solid fa-clock"></i><span id="reportTime">--</span></div>
+      </div>
+      <div class="report-threat" id="reportThreat">
+        <span class="report-threat-label" id="reportThreatLabel">ANALYZING...</span>
+        <span class="report-threat-value" id="reportThreatValue">--</span>
+      </div>
+      <div class="report-stats-row" id="reportStatsRow" style="display:none;">
+        <div class="report-stat"><i class="fa-solid fa-temperature-half"></i><span class="report-stat-value" id="rTemp">--</span><span class="report-stat-label">Temp</span></div>
+        <div class="report-stat"><i class="fa-solid fa-wind"></i><span class="report-stat-value" id="rWind">--</span><span class="report-stat-label">Wind</span></div>
+        <div class="report-stat"><i class="fa-solid fa-cloud"></i><span class="report-stat-value" id="rCondition">--</span><span class="report-stat-label">Condition</span></div>
+      </div>
+      <div class="report-body" id="reportBody"><div class="zone-loading">Generating report...</div></div>
+      <div class="report-sections" id="reportSections" style="display:none;">
+        <div class="report-section">
+          <div class="report-section-title"><i class="fa-solid fa-triangle-exclamation" style="color:#facc15;"></i>Active Warnings</div>
+          <div class="report-section-body" id="reportWarnings"></div>
+        </div>
+        <div class="report-section">
+          <div class="report-section-title"><i class="fa-solid fa-shield-halved" style="color:#4ade80;"></i>Safety Recommendations</div>
+          <div class="report-section-body" id="reportRecommendations"></div>
+        </div>
+      </div>
+      <p class="report-generated" id="reportGenerated"></p>
+    </div>
+  </div>
+
+  <!-- Food & NGO Modal -->
+  <div class="map-modal" id="foodModal">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div class="map-modal-title"><i class="fa-solid fa-hand-holding-heart" style="color:#94a3b8;font-size:16px;"></i>FOOD & NGO</div>
+        <button class="map-modal-close" onclick="closeFoodModal()">✕</button>
+      </div>
+      <h2 class="shelter-heading">Food & NGO</h2>
+      <div class="food-search-wrap">
+        <i class="fa-solid fa-magnifying-glass food-search-icon"></i>
+        <input type="text" class="food-search-input" id="foodSearchInput" placeholder="Search water, meal kits, supplies..." oninput="searchFood(this.value)">
+      </div>
+      <div class="nearest-summary-card" id="foodNearest"></div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterFood('all', this)">All</button>
+        <button class="filter-tab" onclick="filterFood('foodbank', this)">Food Banks</button>
+        <button class="filter-tab" onclick="filterFood('water', this)">Water Points</button>
+        <button class="filter-tab" onclick="filterFood('ngo', this)">NGOs</button>
+      </div>
+      <div class="food-list" id="foodList"></div>
+    </div>
+  </div>
+
+  <!-- Shelter Modal -->
+  <div class="map-modal" id="shelterModal">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div class="map-modal-title"><i class="fa-solid fa-location-dot" style="color:#facc15;font-size:16px;"></i>RELIEF CENTERS</div>
+        <button class="map-modal-close" onclick="closeShelterModal()">✕</button>
+      </div>
+      <div class="shelter-live-tag"><span class="shelter-live-dot"></span>LIVE NETWORK STATUS</div>
+      <h2 class="shelter-heading">Relief Centers</h2>
+      <p class="shelter-subtext">Verified emergency shelters and NGO hubs currently operating in your sector.</p>
+      <div class="nearest-summary-card" id="shelterNearest"></div>
+      <div class="filter-tabs" style="margin-top:16px;">
+        <button class="filter-tab active" onclick="filterShelters('all', this)">All Centers</button>
+        <button class="filter-tab" onclick="filterShelters('shelter', this)">Shelters</button>
+        <button class="filter-tab" onclick="filterShelters('medical', this)">Medical</button>
+        <button class="filter-tab" onclick="filterShelters('food', this)">Supply</button>
+      </div>
+      <div class="shelter-list" id="shelterList"></div>
+    </div>
+  </div>
+
+  <!-- Police Modal -->
+  <div class="map-modal" id="policeModal">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div class="map-modal-title"><i class="fa-solid fa-shield-halved" style="color:#f87171;font-size:16px;"></i>POLICE STATIONS</div>
+        <button class="map-modal-close" onclick="closePoliceModal()">✕</button>
+      </div>
+      <div class="filter-tabs" id="policeFilterTabs">
+        <button class="police-tab active" onclick="filterPolice('nearest', this)"><i class="fa-solid fa-location-arrow"></i> NEAREST</button>
+        <button class="police-tab" onclick="filterPolice('active', this)"><i class="fa-solid fa-shield-halved"></i> ACTIVE UNITS</button>
+        <button class="police-tab" onclick="filterPolice('alert', this)"><i class="fa-solid fa-shield-halved"></i> ON ALERT</button>
+      </div>
+      <div class="nearest-summary-card" id="policeNearest"></div>
+      <div class="police-list" id="policeList"></div>
+    </div>
+  </div>
+
+  <!-- Hospital Modal -->
+  <div class="map-modal" id="hospitalModal">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div class="map-modal-title"><i class="fa-solid fa-briefcase-medical" style="color:#4ade80;font-size:16px;"></i>HOSPITALS</div>
+        <button class="map-modal-close" onclick="closeHospitalModal()">✕</button>
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-tab active" onclick="filterHospitals('recommended', this)">Recommended</button>
+        <button class="filter-tab" onclick="filterHospitals('nearest', this)">Nearest</button>
+        <button class="filter-tab" onclick="filterHospitals('maxbeds', this)">Max Beds</button>
+        <button class="filter-tab" onclick="filterHospitals('available', this)">Available</button>
+      </div>
+      <div class="hospital-highlight-grid">
+        <div class="hospital-highlight-card verified" id="hospitalVerifiedCard"></div>
+        <div class="hospital-highlight-card nearest" id="hospitalNearestCard"></div>
+      </div>
+      <div class="status-overview">
+        <h2 class="status-title">Status Overview</h2>
+        <p class="status-subtitle" id="statusSubtitle">Emergency response readiness in your area</p>
+        <div class="status-stats">
+          <div class="stat-item"><span class="stat-value green" id="totalBeds">--</span><span class="stat-label">BEDS AVAILABLE</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><span class="stat-value red" id="criticalWait">--</span><span class="stat-label">CRITICAL WAIT</span></div>
+          <div class="stat-divider"></div>
+          <div class="stat-item"><span class="stat-value amber" id="totalFacilities">--</span><span class="stat-label">FACILITIES</span></div>
+        </div>
+      </div>
+      <div class="hospital-list" id="hospitalList"></div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  ADMIN NEXUS PORTAL                             -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <div class="admin-overlay" id="adminOverlay">
+    <div class="admin-scanline"></div>
+    <div class="admin-grid"></div>
+    <div class="admin-box">
+      <div class="admin-topbar">
+        <div class="admin-brand-block">
+          <div class="admin-brand-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <div class="admin-brand-text">
+            <span class="admin-brand-name">CRISIS SYNC</span>
+            <span class="admin-brand-sub">AUTHORIZED PERSONNEL ONLY</span>
+          </div>
+        </div>
+        <div class="admin-status-pill">
+          <span class="admin-status-dot"></span>
+          <div class="admin-status-text">SYSTEM<span>ONLINE</span></div>
+        </div>
+        <button onclick="closeAdminPortal()" style="background:#1a1a1a;border:1px solid #2a2a2a;color:#666;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+      </div>
+      <div class="admin-main" id="adminMain">
+        <div class="admin-enc-tag">
+          <div class="admin-enc-bar"></div>
+          <span class="admin-enc-label">ENCRYPTED LINK ESTABLISHED</span>
+        </div>
+        <h1 class="admin-portal-title">ACCESS<br>NEXUS<br>PORTAL</h1>
+        <p class="admin-portal-desc">Please provide your credentials to verify clearance for the tactical environment.</p>
+        <div class="admin-field-group" id="adminLoginForm">
+          <div>
+            <div class="admin-field-label">AUTHENTICATION ROLE</div>
+            <div class="admin-select-wrap">
+              <i class="fa-solid fa-lock admin-select-icon"></i>
+              <select class="admin-role-select" id="adminRole">
+                <option value="hospital">Hospital</option>
+                <option value="food">Food / NGO</option>
+                <option value="police">Police</option>
+                <option value="shelter">Shelter</option>
+              </select>
+              <i class="fa-solid fa-chevron-down admin-chevron"></i>
+            </div>
+          </div>
+          <div>
+            <div class="admin-field-label">EMAIL</div>
+            <div class="admin-input-wrap">
+              <i class="fa-solid fa-envelope admin-input-icon"></i>
+              <input type="email" class="admin-input" id="adminEmail" placeholder="institution@email.com" autocomplete="off">
+            </div>
+          </div>
+          <div>
+            <div class="admin-field-label">SECURITY KEY</div>
+            <div class="admin-input-wrap">
+              <i class="fa-solid fa-lock admin-input-icon"></i>
+              <input type="password" class="admin-input" id="adminPass" placeholder="••••••••••••" autocomplete="off">
+              <button class="admin-eye-btn" onclick="toggleAdminPass(this)" tabindex="-1"><i class="fa-solid fa-eye"></i></button>
+            </div>
+          </div>
+          <p class="admin-error" id="adminError"></p>
+          <button class="admin-login-btn" onclick="handleAdminAuth('login')">
+            <span id="adminBtnText">SECURE LOGIN</span>
+            <i class="fa-solid fa-arrow-right" id="adminBtnIcon"></i>
+            <span class="admin-btn-loader" id="adminBtnLoader" style="display:none;"><i class="fa-solid fa-circle-notch fa-spin"></i></span>
+          </button>
+          <div style="display:flex;justify-content:center;gap:12px;margin-top:14px;flex-wrap:wrap;">
+            <button class="admin-footer-link" onclick="switchAuthMode('signup')" style="background:none;border:none;color:#e03030;font-size:12px;font-weight:700;cursor:pointer;">SIGN UP</button>
+            <span class="admin-footer-link">FORGOT CLEARANCE?</span>
+            <span class="admin-footer-link">REQUEST ACCESS</span>
+          </div>
+        </div>
+        <div class="admin-version">V4.2</div>
+        <div class="admin-proto-strip">
+          <span>SECURITY PROTOCOLS</span><span>· · ·</span><span>SYSTEM_STATUS</span><span>SUPPORT</span>
+        </div>
+        <div class="admin-proto-strip" style="margin-top:3px;">
+          <span>SECURE PROTOCOL LENS V4.0.2 // ENCRYPTED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!--  16 ADMIN MODALS  (clean — Firebase only)       -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <!-- H1: Bed Management -->
+  <div class="adm-modal" id="modal-bed-management">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-bed"></i> BED MANAGEMENT</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-bed-management')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">WARD STATUS</div>
+        <div id="bedList"></div>
+        <div class="adm-section-label" style="margin-top:18px;">ACTIVE MEDICAL INCIDENTS</div>
+        <div id="medIncidentList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H2: Staff On Duty -->
+  <div class="adm-modal" id="modal-staff-duty">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-user-doctor"></i> STAFF ON DUTY</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-staff-duty')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">STAFF ROSTER</div>
+        <div id="staffList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H3: Emergency Intake -->
+  <div class="adm-modal" id="modal-emergency-intake">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-ambulance"></i> EMERGENCY INTAKE</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-emergency-intake')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-live-pill"><span class="adm-live-dot"></span>LIVE INTAKE FEED</div>
+        <div id="intakeList"></div>
+        <div class="adm-section-label" style="margin-top:18px;">LOG NEW CASE</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">PATIENT ID</div>
+          <input class="adm-field-input" id="intake-pid" placeholder="e.g. PT-2024-0091">
+          <div class="adm-field-lbl">TRIAGE LEVEL</div>
+          <select class="adm-field-input" id="intake-level">
+            <option>Priority 1 — Critical</option>
+            <option>Priority 2 — Urgent</option>
+            <option>Priority 3 — Stable</option>
+          </select>
+          <div class="adm-field-lbl">NOTES</div>
+          <input class="adm-field-input" id="intake-notes" placeholder="Brief description...">
+          <button class="adm-commit-btn" onclick="logNewCase()"><i class="fa-solid fa-plus"></i> LOG CASE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- H4: Incident Reports -->
+  <div class="adm-modal" id="modal-hosp-incidents">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-file-medical"></i> INCIDENT REPORTS</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-hosp-incidents')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-filter-row">
+          <button class="adm-filter-btn active" onclick="renderHospReports('ALL')">ALL</button>
+          <button class="adm-filter-btn" onclick="renderHospReports('PENDING')">PENDING</button>
+          <button class="adm-filter-btn" onclick="renderHospReports('RESOLVED')">RESOLVED</button>
+        </div>
+        <div id="hospReportList"></div>
+        <button class="adm-commit-btn" style="margin-top:16px;" onclick="showReportForm()"><i class="fa-solid fa-plus"></i> FILE NEW REPORT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- F1: Stock Update -->
+  <div class="adm-modal" id="modal-stock-update">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-box-open"></i> STOCK UPDATE</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-stock-update')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">INVENTORY ITEMS</div>
+        <div id="stockCards"></div>
+        <div class="adm-section-label" style="margin-top:18px;">MANUAL LEDGER ENTRY</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">ASSET IDENTIFIER</div>
+          <input class="adm-field-input" id="assetId" placeholder="e.g. BATCH-772-ALFA">
+          <div class="adm-field-lbl">QUANTITY ADJUSTMENT (+/-)</div>
+          <input class="adm-field-input" id="qtyAdj" type="number" placeholder="e.g. +200 or -50">
+          <button class="adm-commit-btn" onclick="commitStockEntry()">COMMIT TO LEDGER</button>
+        </div>
+        <div class="adm-section-label" style="margin-top:18px;">RECENT LEDGER LOGS</div>
+        <div id="ledgerList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- F2: Distribution Points -->
+  <div class="adm-modal" id="modal-distribution">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-location-dot"></i> DISTRIBUTION POINTS</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-distribution')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">STATION LIST</div>
+        <div id="distroList"></div>
+        <button class="adm-commit-btn" style="margin-top:16px;" onclick="showDistroForm()"><i class="fa-solid fa-plus"></i> ADD NEW STATION</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- F3: Incoming Supply -->
+  <div class="adm-modal" id="modal-incoming-supply">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-truck"></i> INCOMING SUPPLY</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-incoming-supply')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-live-pill"><span class="adm-live-dot"></span>LIVE DELIVERY TRACKER</div>
+        <div id="supplyList"></div>
+        <div class="adm-section-label" style="margin-top:18px;">LOG DELIVERY</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">VEHICLE ID</div>
+          <input class="adm-field-input" id="convoy-vid" placeholder="e.g. TRK-009-ALPHA">
+          <div class="adm-field-lbl">CARGO TYPE</div>
+          <select class="adm-field-input" id="convoy-cargo">
+            <option>Meal Kits</option>
+            <option>Potable Water</option>
+            <option>Medical Supplies</option>
+            <option>Mixed Relief</option>
+          </select>
+          <div class="adm-field-lbl">QUANTITY</div>
+          <input class="adm-field-input" id="convoy-qty" placeholder="e.g. 500">
+          <button class="adm-commit-btn" onclick="logDelivery()"><i class="fa-solid fa-check"></i> LOG DELIVERY</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- F4: NGO Coordination -->
+  <div class="adm-modal" id="modal-ngo-coord">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-clipboard-list"></i> NGO COORDINATION</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-ngo-coord')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">PARTNER ORGANIZATIONS</div>
+        <div id="ngoList"></div>
+        <button class="adm-commit-btn" style="margin-top:16px;" onclick="saveNGO()"><i class="fa-solid fa-plus"></i> ADD PARTNER</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- P1: Unit Deployment -->
+  <div class="adm-modal" id="modal-unit-deployment">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-car"></i> UNIT DEPLOYMENT</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-unit-deployment')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">🚨 INCOMING SOS ALERTS</div>
+        <div id="sosAlertsList" style="max-height:300px;overflow-y:auto;margin-bottom:18px;"></div>
+        <div class="adm-section-label">DEPLOYED UNITS</div>
+        <div id="unitList"></div>
+        <div class="adm-section-label" style="margin-top:18px;">DEPLOY NEW UNIT</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">UNIT ID</div>
+          <input class="adm-field-input" id="unit-id" placeholder="e.g. UNIT-P42">
+          <div class="adm-field-lbl">SECTOR</div>
+          <input class="adm-field-input" id="unit-sector" placeholder="e.g. Sector 4B Downtown">
+          <div class="adm-field-lbl">MISSION TYPE</div>
+          <select class="adm-field-input" id="unit-mission">
+            <option>Patrol</option>
+            <option>Emergency Response</option>
+            <option>Traffic Control</option>
+            <option>Tactical</option>
+          </select>
+          <button class="adm-commit-btn" onclick="deployNewUnit()"><i class="fa-solid fa-paper-plane"></i> DEPLOY UNIT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- P2: Alert Broadcast -->
+  <div class="adm-modal" id="modal-alert-broadcast">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-bell"></i> ALERT BROADCAST</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-alert-broadcast')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-live-pill"><span class="adm-live-dot"></span>LIVE FEED ACTIVE</div>
+        <div id="incidentFeed"></div>
+        <div class="adm-section-label" style="margin-top:18px;">BROADCAST NEW ALERT</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">ALERT TYPE</div>
+          <select class="adm-field-input" id="bc-type">
+            <option>Public Safety Warning</option>
+            <option>Road Closure</option>
+            <option>Evacuation Order</option>
+            <option>All Clear</option>
+          </select>
+          <div class="adm-field-lbl">MESSAGE</div>
+          <textarea class="adm-field-input" id="bc-msg" rows="3" placeholder="Enter broadcast message..."></textarea>
+          <div class="adm-field-lbl">TARGET SECTOR</div>
+          <select class="adm-field-input" id="bc-sector">
+            <option>All Sectors</option>
+            <option>Sector 4B — Downtown Core</option>
+            <option>Sector 7C — West Heights</option>
+            <option>Exit 22 — Highway Corridor</option>
+          </select>
+          <button class="adm-commit-btn" onclick="broadcastAlert()"><i class="fa-solid fa-satellite-dish"></i> BROADCAST ALERT</button>
+        </div>
+        <div class="adm-section-label" style="margin-top:18px;">COMMANDER'S NOTES</div>
+        <div id="cmdNotes"></div>
+        <button class="adm-archive-btn" onclick="showNoteForm()"><i class="fa-solid fa-plus"></i> ADD NOTE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- P3: Patrol Zones -->
+  <div class="adm-modal" id="modal-patrol-zones">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-map-location"></i> PATROL ZONES</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-patrol-zones')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">ZONE STATUS</div>
+        <div id="patrolZoneList"></div>
+        <button class="adm-commit-btn" style="margin-top:16px;" onclick="showZoneForm()"><i class="fa-solid fa-plus"></i> ASSIGN NEW ZONE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- P4: Incident Log -->
+  <div class="adm-modal" id="modal-incident-log">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-file-shield"></i> INCIDENT LOG</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-incident-log')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-live-pill"><span class="adm-live-dot"></span>LIVE FEED ACTIVE</div>
+        <div id="incidentLog"></div>
+        <div class="adm-section-label" style="margin-top:18px;">COMMANDER'S NOTES</div>
+        <div id="cmdNotes2"></div>
+        <button class="adm-archive-btn" onclick="showNoteForm()"><i class="fa-solid fa-plus"></i> ADD NOTE</button>
+        <div class="adm-meta-row"><span>Active Units</span><span class="white">142</span></div>
+        <div class="adm-meta-bar"><div class="adm-meta-bar-fill red" style="width:72%"></div></div>
+        <div class="adm-meta-row"><span>Response Time</span><span class="white">4.2m Avg.</span></div>
+        <button class="adm-archive-btn" onclick="admAlert('Log archived!')">ARCHIVE CURRENT LOG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- S1: Capacity Status -->
+  <div class="adm-modal" id="modal-capacity-status">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-people-group"></i> CAPACITY STATUS</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-capacity-status')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">SHELTER BREAKDOWN</div>
+        <div id="capacityList"></div>
+        <button class="adm-commit-btn" style="margin-top:16px;" onclick="showShelterWardForm()"><i class="fa-solid fa-plus"></i> ADD WARD</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- S2: Medical Services -->
+  <div class="adm-modal" id="modal-medical-services">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-kit-medical"></i> MEDICAL SERVICES</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-medical-services')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-live-pill"><span class="adm-live-dot"></span>LIVE STREAM</div>
+        <div class="adm-section-label" style="margin-top:12px;">ACTIVE MEDICAL INCIDENTS</div>
+        <div id="shelterMedList"></div>
+        <button class="adm-commit-btn" style="margin-top:16px;" onclick="saveMedIncident()"><i class="fa-solid fa-plus"></i> LOG INCIDENT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- S3: Supply Inventory -->
+  <div class="adm-modal" id="modal-supply-inventory">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-boxes-stacked"></i> SUPPLY INVENTORY</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-supply-inventory')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">INVENTORY ITEMS</div>
+        <div id="shelterStockCards"></div>
+        <div class="adm-section-label" style="margin-top:18px;">MANUAL LEDGER ENTRY</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">ASSET IDENTIFIER</div>
+          <input class="adm-field-input" id="shelter-assetId" placeholder="e.g. BATCH-772-ALFA">
+          <div class="adm-field-lbl">QUANTITY ADJUSTMENT (+/-)</div>
+          <input class="adm-field-input" id="shelter-qtyAdj" type="number" placeholder="e.g. +100 or -20">
+          <button class="adm-commit-btn" onclick="commitShelterLedger()">COMMIT TO LEDGER</button>
+        </div>
+        <div class="adm-section-label" style="margin-top:18px;">RECENT LEDGER LOGS</div>
+        <div id="shelterLedger"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- S4: Announcements -->
+  <div class="adm-modal" id="modal-announcements">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-bullhorn"></i> ANNOUNCEMENTS</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-announcements')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">RECENT ANNOUNCEMENTS</div>
+        <div id="announceList"></div>
+        <div class="adm-section-label" style="margin-top:18px;">POST NEW ANNOUNCEMENT</div>
+        <div class="adm-form-group">
+          <div class="adm-field-lbl">TITLE</div>
+          <input class="adm-field-input" id="ann-title" placeholder="Announcement title...">
+          <div class="adm-field-lbl">MESSAGE</div>
+          <textarea class="adm-field-input" id="ann-msg" rows="4" placeholder="Write your message to residents..."></textarea>
+          <div class="adm-field-lbl">PRIORITY</div>
+          <select class="adm-field-input" id="ann-priority">
+            <option value="NORMAL">Normal</option>
+            <option value="IMPORTANT">Important</option>
+            <option value="CRITICAL">Critical</option>
+          </select>
+          <button class="adm-commit-btn" onclick="postAnnouncement()"><i class="fa-solid fa-bullhorn"></i> POST ANNOUNCEMENT</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SOS ALERTS MODAL -->
+  <div class="adm-modal" id="modal-sos-alerts">
+    <div class="adm-modal-inner">
+      <div class="adm-modal-topbar">
+        <div class="adm-modal-title"><i class="fa-solid fa-triangle-exclamation"></i> INCOMING SOS ALERTS</div>
+        <button class="adm-modal-close" onclick="closeAdmModal('modal-sos-alerts')">✕</button>
+      </div>
+      <div class="adm-modal-body">
+        <div class="adm-section-label">EMERGENCY ALERTS FROM VICTIMS</div>
+        <div id="sosAlertsList" style="max-height:500px;overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase Compat SDK (must load before firebase-config.js) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+
+  <!-- App scripts -->
+  <script src="firebase-config.js"></script>
+  <script src="script.js"></script>
+  <script src="admin-modals.js"></script>
+  <script src="agent.js"></script>
+
+<!-- ================================================== -->
+<!--  STEP 2 — Copy this ENTIRE block into index.html   -->
+<!--  Paste it just BEFORE the closing </body> tag      -->
+<!--  (after the existing admin overlay div)            -->
+<!-- ================================================== -->
+
+<!-- ── AI CRISIS AGENT FAB BUTTON ── -->
+<button class="agent-fab-btn" onclick="openAgentModal()" title="AI Crisis Agent">
+  <span class="agent-fab-icon">🤖</span>
+  <span class="agent-fab-label">AI Agent</span>
+</button>
+
+<!-- ── AI CRISIS AGENT MODAL ── -->
+<div class="agent-overlay" id="agentOverlay">
+  <div class="agent-modal-box">
+
+    <div class="agent-modal-header">
+      <div class="agent-header-left">
+        <div class="agent-brain-icon">🤖</div>
+        <div>
+          <div class="agent-modal-title">AI CRISIS AGENT</div>
+          <div class="agent-modal-sub">
+            <span class="agent-live-dot"></span>
+            GEMINI POWERED · LIVE ANALYSIS
+          </div>
+        </div>
+      </div>
+      <button class="agent-close-btn" onclick="closeAgentModal()">✕</button>
+    </div>
+
+    <!-- Context strip (auto-populated from your app data) -->
+    <div class="agent-context-strip" id="agentContextStrip">
+      <span class="agent-ctx-item" id="agentCtxLocation">📍 Detecting...</span>
+      <span class="agent-ctx-item" id="agentCtxWeather">🌤 Loading...</span>
+      <span class="agent-ctx-item" id="agentCtxThreat">🛡 Assessing...</span>
+    </div>
+
+    <!-- Chat messages area -->
+    <div class="agent-chat-wrap" id="agentChatWrap">
+      <div class="agent-welcome-msg">
+        <div class="agent-welcome-icon">🌐</div>
+        <div class="agent-welcome-text">
+          I'm your AI Crisis Agent. Tell me your emergency or ask about nearby hospitals,
+          shelters, police, or food aid — I'll find the best help for you right now.
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick prompt buttons -->
+    <div class="agent-quick-prompts" id="agentQuickPrompts">
+      <button class="agent-quick-btn" onclick="agentQuickSend('Find nearest hospital with available beds')">🏥 Nearest hospital</button>
+      <button class="agent-quick-btn" onclick="agentQuickSend('Where is the nearest flood shelter?')">🏠 Flood shelter</button>
+      <button class="agent-quick-btn" onclick="agentQuickSend('I need food and water supplies urgently')">🥗 Food & water</button>
+      <button class="agent-quick-btn" onclick="agentQuickSend('There is a crime happening near me, I need police')">🚔 Police help</button>
+    </div>
+
+    <!-- SOS Dispatch Confirmation Card -->
+    <div id="dispatchConfirmCard" style="display:none;padding:12px;margin:0 12px 12px 12px;"></div>
+
+    <!-- Input row -->
+    <div class="agent-input-row">
+      <button class="agent-mic-btn" id="agentMicBtn" onclick="agentStartMic()" title="Speak">🎙</button>
+      <input
+        type="text"
+        class="agent-text-input"
+        id="agentTextInput"
+        placeholder="Describe your emergency..."
+        onkeydown="if(event.key==='Enter') agentSendMessage()"
+      >
+      <button class="agent-send-btn" onclick="agentSendMessage()">➤</button>
+    </div>
+
+  </div>    
+</div>
+</body>
+</html>
